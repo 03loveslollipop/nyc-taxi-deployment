@@ -205,10 +205,35 @@ class NeuralNetworkRegressor(BaseEstimator, RegressorMixin):
         self.model_.load_state_dict(self.best_state_dict_)
         self.best_loss_ = best_val_loss
         self.training_history_ = {'train_loss': train_losses, 'val_loss': val_losses}
+        self.fitted_ = True
         
         if self.verbose:
             print(f"Training completed. Best validation loss: {best_val_loss:.4f}")
         
+        return self
+
+    def load_pretrained(self, state_dict_path, input_dim=None, device='cpu'):
+        """
+        Load pretrained weights from disk without running fit.
+        """
+        if input_dim is not None:
+            self.input_dim = input_dim
+        if self.input_dim is None:
+            raise ValueError("input_dim must be provided to load pretrained weights.")
+        if isinstance(device, str):
+            device = torch.device(device)
+        self.device_ = device
+        torch.manual_seed(self.random_state)
+        self.model_ = MediumArchitecture(self.input_dim, activation_fn=nn.ReLU).to(self.device_)
+        state_dict = torch.load(state_dict_path, map_location=self.device_)
+        self.model_.load_state_dict(state_dict)
+        self.best_state_dict_ = {k: v.cpu().clone() for k, v in self.model_.state_dict().items()}
+        self.training_history_ = None
+        self.best_loss_ = None
+        self.fitted_ = True
+        self.model_.eval()
+        if self.verbose:
+            print(f"Loaded pretrained weights from {state_dict_path}")
         return self
     
     def predict(self, X):

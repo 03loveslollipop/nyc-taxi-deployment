@@ -1,6 +1,6 @@
 """
-NYC Taxi Trip Duration Prediction - Streamlit App
-Loads the trained neural network pipeline and provides an interactive prediction interface
+Predicción de Duración de Viajes en Taxi de NYC - Aplicación Streamlit
+Carga el pipeline de red neuronal entrenada y proporciona una interfaz interactiva de predicción
 """
 
 import streamlit as st
@@ -21,15 +21,15 @@ except ModuleNotFoundError:
 
 BASE_DIR = Path(__file__).resolve().parent
 
-# Page configuration
+# Configuración de página
 st.set_page_config(
-    page_title="NYC Taxi Trip Duration Predictor",
-    page_icon="🚕",
+    page_title="Predictor de Duración de Viajes en Taxi de NYC",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS
+# CSS personalizado
 st.markdown("""
     <style>
     .main-header {
@@ -55,12 +55,12 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================================================================
-# LOAD MODEL AND INFO
+# CARGAR MODELO E INFORMACIÓN
 # ============================================================================
 
 @st.cache_resource
 def load_pipeline():
-    """Load the trained pipeline from pickle"""
+    """Cargar el pipeline entrenado desde pickle"""
     pipeline_path = BASE_DIR / 'nn_pipeline.pkl'
     with open(pipeline_path, 'rb') as f:
         pipeline = pickle.load(f)
@@ -68,183 +68,183 @@ def load_pipeline():
 
 @st.cache_data
 def load_model_info():
-    """Load model information"""
+    """Cargar información del modelo"""
     info_path = BASE_DIR / 'model_info.json'
     with open(info_path, 'r') as f:
         info = json.load(f)
     return info
 
-# Load model
+# Cargar modelo
 try:
     pipeline = load_pipeline()
     model_info = load_model_info()
     model_loaded = True
 except Exception as e:
-    st.error(f"Error loading model: {e}")
-    st.info("Please make sure 'nn_pipeline.pkl' and 'model_info.json' are in the same directory as this app.")
+    st.error(f"Error al cargar el modelo: {e}")
+    st.info("Asegúrese de que 'nn_pipeline.pkl' y 'model_info.json' estén en el mismo directorio que esta aplicación.")
     model_loaded = False
 
 # ============================================================================
-# HEADER
+# ENCABEZADO
 # ============================================================================
 
-st.markdown('<div class="main-header">🚕 NYC Taxi Trip Duration Predictor</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">Predict taxi trip duration using a Neural Network trained on 70% of NYC taxi data</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-header">Predictor de Duración de Viajes en Taxi de NYC</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-header">Predice la duración de viajes en taxi usando una Red Neuronal entrenada en el 70% de los datos de taxis de NYC</div>', unsafe_allow_html=True)
 
 if model_loaded:
-    # Show model performance
+    # Mostrar rendimiento del modelo
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("Test RMSE", f"{model_info['test_rmse']:.4f} min")
+        st.metric("RMSE de Prueba", f"{model_info['test_rmse']:.4f} min")
     with col2:
-        st.metric("Test MAE", f"{model_info['test_mae']:.4f} min")
+        st.metric("MAE de Prueba", f"{model_info['test_mae']:.4f} min")
     with col3:
-        st.metric("Test R²", f"{model_info['test_r2']:.4f}")
+        st.metric("R² de Prueba", f"{model_info['test_r2']:.4f}")
 
 st.markdown("---")
 
 # ============================================================================
-# SIDEBAR - MODEL INFO
+# BARRA LATERAL - INFORMACIÓN DEL MODELO
 # ============================================================================
 
 if model_loaded:
     with st.sidebar:
-        st.header("📊 Model Information")
+        st.header("Información del Modelo")
         
-        st.subheader("Architecture")
-        st.write(f"**Type:** {model_info['model_architecture']}")
-        st.write(f"**Optimizer:** {model_info['optimizer']}")
-        st.write(f"**Learning Rate:** {model_info['learning_rate']}")
-        st.write(f"**Activation:** {model_info['activation']}")
+        st.subheader("Arquitectura")
+        st.write(f"**Tipo:** {model_info['model_architecture']}")
+        st.write(f"**Optimizador:** {model_info['optimizer']}")
+        st.write(f"**Tasa de Aprendizaje:** {model_info['learning_rate']}")
+        st.write(f"**Activación:** {model_info['activation']}")
         
-        st.subheader("Features")
-        st.write(f"**Numeric Features:** {len(model_info['numeric_columns'])}")
-        st.write(f"**Categorical Features:** {len(model_info['categorical_columns'])}")
+        st.subheader("Características")
+        st.write(f"**Características Numéricas:** {len(model_info['numeric_columns'])}")
+        st.write(f"**Características Categóricas:** {len(model_info['categorical_columns'])}")
         
-        with st.expander("View Feature Details"):
-            st.write("**Categorical Columns:**")
+        with st.expander("Ver Detalles de Características"):
+            st.write("**Columnas Categóricas:**")
             for col in model_info['categorical_columns']:
                 st.write(f"- {col}")
             
-            st.write("**Numeric Columns:**")
-            for col in model_info['numeric_columns'][:10]:  # Show first 10
+            st.write("**Columnas Numéricas:**")
+            for col in model_info['numeric_columns'][:10]:  # Mostrar primeras 10
                 st.write(f"- {col}")
             if len(model_info['numeric_columns']) > 10:
-                st.write(f"... and {len(model_info['numeric_columns']) - 10} more")
+                st.write(f"... y {len(model_info['numeric_columns']) - 10} más")
 
 # ============================================================================
-# MAIN INTERFACE
+# INTERFAZ PRINCIPAL
 # ============================================================================
 
 if model_loaded:
-    # Create tabs
-    tab1, tab2, tab3 = st.tabs(["🔮 Single Prediction", "📁 Batch Prediction", "ℹ️ About"])
+    # Crear pestañas
+    tab1, tab2, tab3 = st.tabs(["Predicción Individual", "Predicción por Lotes", "Acerca de"])
     
     # ========================================================================
-    # TAB 1: SINGLE PREDICTION
+    # PESTAÑA 1: PREDICCIÓN INDIVIDUAL
     # ========================================================================
     
     with tab1:
-        st.header("Enter Trip Details")
+        st.header("Ingrese Detalles del Viaje")
         
         col1, col2 = st.columns(2)
         
         with col1:
-            st.subheader("📍 Location & Time")
+            st.subheader("Ubicación y Hora")
             
             pickup_borough = st.selectbox(
-                "Pickup Borough",
+                "Distrito de Recogida",
                 options=['Manhattan', 'Queens', 'Brooklyn', 'Bronx', 'Staten Island'],
-                help="Borough where the trip starts"
+                help="Distrito donde comienza el viaje"
             )
             
             dropoff_borough = st.selectbox(
-                "Dropoff Borough",
+                "Distrito de Destino",
                 options=['Manhattan', 'Queens', 'Brooklyn', 'Bronx', 'Staten Island'],
-                help="Borough where the trip ends"
+                help="Distrito donde termina el viaje"
             )
             
-            pickup_hour = st.slider("Pickup Hour (0-23)", 0, 23, 12)
-            pickup_day = st.slider("Day of Month (1-31)", 1, 31, 15)
-            pickup_weekday = st.slider("Weekday (0=Monday, 6=Sunday)", 0, 6, 2)
-            pickup_month = st.slider("Month (1-12)", 1, 12, 6)
+            pickup_hour = st.slider("Hora de Recogida (0-23)", 0, 23, 12)
+            pickup_day = st.slider("Día del Mes (1-31)", 1, 31, 15)
+            pickup_weekday = st.slider("Día de la Semana (0=Lunes, 6=Domingo)", 0, 6, 2)
+            pickup_month = st.slider("Mes (1-12)", 1, 12, 6)
         
         with col2:
-            st.subheader("🚖 Trip Details")
+            st.subheader("Detalles del Viaje")
             
             distance = st.number_input(
-                "Trip Distance (miles)",
+                "Distancia del Viaje (millas)",
                 min_value=0.01,
                 max_value=100.0,
                 value=2.5,
                 step=0.1,
-                help="Distance of the trip in miles"
+                help="Distancia del viaje en millas"
             )
             
             passenger_count = st.number_input(
-                "Passenger Count",
+                "Número de Pasajeros",
                 min_value=1,
                 max_value=6,
                 value=1,
-                help="Number of passengers"
+                help="Número de pasajeros"
             )
             
             payment_type = st.selectbox(
-                "Payment Type",
-                options=['credit card', 'cash', 'no charge', 'dispute'],
-                help="Method of payment"
+                "Tipo de Pago",
+                options=['tarjeta de crédito', 'efectivo', 'sin cargo', 'disputa'],
+                help="Método de pago"
             )
             
             fare_amount = st.number_input(
-                "Fare Amount ($)",
+                "Monto de Tarifa ($)",
                 min_value=0.0,
                 max_value=500.0,
                 value=10.0,
                 step=0.5,
-                help="Base fare amount"
+                help="Monto base de la tarifa"
             )
             
             extra = st.number_input(
-                "Extra Charges ($)",
+                "Cargos Extra ($)",
                 min_value=0.0,
                 max_value=50.0,
                 value=0.5,
                 step=0.25,
-                help="Extra charges (rush hour, overnight)"
+                help="Cargos extra (hora pico, nocturno)"
             )
             
             mta_tax = st.number_input(
-                "MTA Tax ($)",
+                "Impuesto MTA ($)",
                 min_value=0.0,
                 max_value=10.0,
                 value=0.5,
                 step=0.25,
-                help="MTA tax"
+                help="Impuesto MTA"
             )
             
             tip_amount = st.number_input(
-                "Tip Amount ($)",
+                "Monto de Propina ($)",
                 min_value=0.0,
                 max_value=100.0,
                 value=2.0,
                 step=0.5,
-                help="Tip amount"
+                help="Monto de propina"
             )
             
             tolls_amount = st.number_input(
-                "Tolls Amount ($)",
+                "Monto de Peajes ($)",
                 min_value=0.0,
                 max_value=50.0,
                 value=0.0,
                 step=0.5,
-                help="Toll charges"
+                help="Cargos de peajes"
             )
         
         st.markdown("---")
         
-        # Predict button
-        if st.button("🔮 Predict Trip Duration", type="primary", use_container_width=True):
-            # Create input dataframe
+        # Botón de predicción
+        if st.button("Predecir Duración del Viaje", type="primary", use_container_width=True):
+            # Crear dataframe de entrada
             input_data = pd.DataFrame({
                 'pickup_borough': [pickup_borough],
                 'dropoff_borough': [dropoff_borough],
@@ -262,170 +262,170 @@ if model_loaded:
                 'pickup_month': [pickup_month]
             })
             
-            # Make prediction
+            # Hacer predicción
             try:
                 prediction = pipeline.predict(input_data)[0]
                 
-                # Display result
-                st.success("Prediction Complete!")
+                # Mostrar resultado
+                st.success("Predicción Completada!")
                 
-                # Show prediction with nice formatting
+                # Mostrar predicción con formato agradable
                 col1, col2, col3 = st.columns([1, 2, 1])
                 with col2:
-                    st.markdown("### 🕐 Predicted Trip Duration")
-                    st.markdown(f"<h1 style='text-align: center; color: #FFD700;'>{prediction:.2f} minutes</h1>", 
+                    st.markdown("### Duración del Viaje Predicha")
+                    st.markdown(f"<h1 style='text-align: center; color: #FFD700;'>{prediction:.2f} minutos</h1>", 
                                unsafe_allow_html=True)
-                    st.markdown(f"<h3 style='text-align: center; color: #888;'>(~{prediction/60:.1f} hours)</h3>", 
+                    st.markdown(f"<h3 style='text-align: center; color: #888;'>(~{prediction/60:.1f} horas)</h3>", 
                                unsafe_allow_html=True)
                 
-                # Additional info
+                # Información adicional
                 st.info(f"""
-                **Trip Summary:**
-                - Route: {pickup_borough} → {dropoff_borough}
-                - Distance: {distance:.2f} miles
-                - Estimated Speed: {(distance / (prediction/60)):.2f} mph
-                - Total Fare: ${fare_amount + extra + mta_tax + tip_amount + tolls_amount:.2f}
+                **Resumen del Viaje:**
+                - Ruta: {pickup_borough} → {dropoff_borough}
+                - Distancia: {distance:.2f} millas
+                - Velocidad Estimada: {(distance / (prediction/60)):.2f} mph
+                - Tarifa Total: ${fare_amount + extra + mta_tax + tip_amount + tolls_amount:.2f}
                 """)
                 
             except Exception as e:
-                st.error(f"Error making prediction: {e}")
+                st.error(f"Error al hacer la predicción: {e}")
     
     # ========================================================================
-    # TAB 2: BATCH PREDICTION
+    # PESTAÑA 2: PREDICCIÓN POR LOTES
     # ========================================================================
     
     with tab2:
-        st.header("Batch Prediction from CSV")
+        st.header("Predicción por Lotes desde CSV")
         
         st.info("""
-        Upload a CSV file with the following columns:
+        Suba un archivo CSV con las siguientes columnas:
         - pickup_borough, dropoff_borough, payment_type
         - passenger_count, trip_distance, fare_amount, extra, mta_tax, tip_amount, tolls_amount
         - pickup_hour, pickup_day, pickup_weekday, pickup_month
         """)
         
-        uploaded_file = st.file_uploader("Choose a CSV file", type=['csv'])
+        uploaded_file = st.file_uploader("Elija un archivo CSV", type=['csv'])
         
         if uploaded_file is not None:
             try:
-                # Load data
+                # Cargar datos
                 input_df = pd.read_csv(uploaded_file)
                 
-                st.write(f"Loaded {len(input_df)} rows")
+                st.write(f"Cargadas {len(input_df)} filas")
                 st.dataframe(input_df.head())
                 
-                if st.button("🔮 Predict All", type="primary"):
-                    # Make predictions
-                    with st.spinner("Making predictions..."):
+                if st.button("Predecir Todo", type="primary"):
+                    # Hacer predicciones
+                    with st.spinner("Haciendo predicciones..."):
                         predictions = pipeline.predict(input_df)
                     
-                    # Add predictions to dataframe
+                    # Agregar predicciones al dataframe
                     results_df = input_df.copy()
                     results_df['predicted_duration'] = predictions
                     
-                    st.success("Predictions complete!")
+                    st.success("Predicciones completadas!")
                     
-                    # Show statistics
+                    # Mostrar estadísticas
                     col1, col2, col3, col4 = st.columns(4)
                     with col1:
-                        st.metric("Mean Duration", f"{predictions.mean():.2f} min")
+                        st.metric("Duración Media", f"{predictions.mean():.2f} min")
                     with col2:
-                        st.metric("Median Duration", f"{np.median(predictions):.2f} min")
+                        st.metric("Duración Mediana", f"{np.median(predictions):.2f} min")
                     with col3:
-                        st.metric("Min Duration", f"{predictions.min():.2f} min")
+                        st.metric("Duración Mínima", f"{predictions.min():.2f} min")
                     with col4:
-                        st.metric("Max Duration", f"{predictions.max():.2f} min")
+                        st.metric("Duración Máxima", f"{predictions.max():.2f} min")
                     
-                    # Show results
+                    # Mostrar resultados
                     st.dataframe(results_df)
                     
-                    # Download button
+                    # Botón de descarga
                     csv = results_df.to_csv(index=False)
                     st.download_button(
-                        label="📥 Download Predictions",
+                        label="Descargar Predicciones",
                         data=csv,
-                        file_name="predictions.csv",
+                        file_name="predicciones.csv",
                         mime="text/csv"
                     )
                     
-                    # Visualization
+                    # Visualización
                     fig = px.histogram(
                         predictions,
                         nbins=50,
-                        title="Distribution of Predicted Trip Durations",
-                        labels={'value': 'Duration (minutes)', 'count': 'Frequency'}
+                        title="Distribución de Duraciones de Viajes Predichas",
+                        labels={'value': 'Duración (minutos)', 'count': 'Frecuencia'}
                     )
                     st.plotly_chart(fig, use_container_width=True)
                     
             except Exception as e:
-                st.error(f"Error processing file: {e}")
+                st.error(f"Error al procesar el archivo: {e}")
     
     # ========================================================================
-    # TAB 3: ABOUT
+    # PESTAÑA 3: ACERCA DE
     # ========================================================================
     
     with tab3:
-        st.header("About This Model")
+        st.header("Acerca de Este Modelo")
         
         st.markdown("""
-        ### 🧠 Neural Network Architecture
+        ### Arquitectura de Red Neuronal
         
-        This model uses a **Medium-depth neural network** with the following characteristics:
+        Este modelo utiliza una **red neuronal de profundidad media** con las siguientes características:
         
-        - **Architecture:** 3-layer feedforward network with batch normalization and dropout
-        - **Layer sizes:** 256 → 128 → 64 → 1
-        - **Activation function:** ReLU
-        - **Optimizer:** AdamW with learning rate 0.001
-        - **Training:** Trained on 70% of NYC taxi trip data with early stopping
+        - **Arquitectura:** Red feedforward de 3 capas con normalización por lotes y dropout
+        - **Tamaños de Capas:** 256 → 128 → 64 → 1
+        - **Función de Activación:** ReLU
+        - **Optimizador:** AdamW con tasa de aprendizaje 0.001
+        - **Entrenamiento:** Entrenado en el 70% de los datos de taxis de NYC con parada temprana
         
-        ### 📊 Model Performance
+        ### Rendimiento del Modelo
         
-        The model was evaluated on a held-out 30% test set:
+        El modelo fue evaluado en un conjunto de prueba retenido del 30%:
         """)
         
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.metric("RMSE", f"{model_info['test_rmse']:.4f} minutes", 
-                     help="Root Mean Squared Error - lower is better")
+            st.metric("RMSE", f"{model_info['test_rmse']:.4f} minutos", 
+                     help="Raíz del Error Cuadrático Medio - más bajo es mejor")
         with col2:
-            st.metric("MAE", f"{model_info['test_mae']:.4f} minutes",
-                     help="Mean Absolute Error - lower is better")
+            st.metric("MAE", f"{model_info['test_mae']:.4f} minutos",
+                     help="Error Absoluto Medio - más bajo es mejor")
         with col3:
-            st.metric("R² Score", f"{model_info['test_r2']:.4f}",
-                     help="Coefficient of determination - closer to 1 is better")
+            st.metric("Puntuación R²", f"{model_info['test_r2']:.4f}",
+                     help="Coeficiente de determinación - más cercano a 1 es mejor")
         
         st.markdown("""
-        ### 🏆 Why This Model?
+        ### Por Qué Este Modelo?
         
-        This neural network was selected as the best performer among multiple models tested:
-        - **Neural Network (Winner):** Best RMSE, MAE, and R² on test set
-        - **XGBoost:** Close second, slightly higher error
-        - **SVM:** Third place, higher error overall
+        Esta red neuronal fue seleccionada como la mejor entre múltiples modelos probados:
+        - **Red Neuronal (Ganadora):** Mejor RMSE, MAE y R² en conjunto de prueba
+        - **XGBoost:** Segundo cercano, error ligeramente mayor
+        - **SVM:** Tercer lugar, error mayor en general
         
-        ### 🔧 Feature Engineering
+        ### Ingeniería de Características
         
-        The model uses carefully engineered features including:
-        - **Location:** Borough information (pickup/dropoff)
-        - **Temporal:** Hour, day, weekday, month
-        - **Trip characteristics:** Distance, passenger count
-        - **Financial:** Fare amounts, tips, tolls, taxes
+        El modelo utiliza características cuidadosamente diseñadas incluyendo:
+        - **Ubicación:** Información de distritos (recogida/destino)
+        - **Temporal:** Hora, día, día de la semana, mes
+        - **Características del Viaje:** Distancia, número de pasajeros
+        - **Financiero:** Montos de tarifa, propinas, peajes, impuestos
         
-        ### 📈 Preprocessing Pipeline
+        ### Pipeline de Preprocesamiento
         
-        The model includes an end-to-end sklearn pipeline with:
-        1. **Mixed scaling:** StandardScaler for some features, PowerTransformer for others
-        2. **Categorical encoding:** One-hot encoding for borough and payment type
-        3. **Neural network:** PyTorch model wrapped in sklearn-compatible interface
+        El modelo incluye un pipeline completo de sklearn con:
+        1. **Escalado mixto:** StandardScaler para algunas características, PowerTransformer para otras
+        2. **Codificación categórica:** Codificación one-hot para distrito y tipo de pago
+        3. **Red neuronal:** Modelo PyTorch envuelto en interfaz compatible con sklearn
         
-        ### 💾 Model Deployment
+        ### Despliegue del Modelo
         
-        The entire pipeline (preprocessing + model) is serialized as a single pickle file,
-        making deployment simple and ensuring consistency between training and inference.
+        El pipeline completo (preprocesamiento + modelo) está serializado como un solo archivo pickle,
+        haciendo el despliegue simple y asegurando consistencia entre entrenamiento e inferencia.
         """)
         
         st.markdown("---")
-        st.markdown("**Built with:** PyTorch, scikit-learn, Streamlit")
-        st.markdown("**Data:** NYC Taxi Trip Duration Dataset")
+        st.markdown("**Construido con:** PyTorch, scikit-learn, Streamlit")
+        st.markdown("**Datos:** Conjunto de Datos de Duración de Viajes en Taxi de NYC")
 
 else:
-    st.error("Model not loaded. Please ensure all required files are present.")
+    st.error("Modelo no cargado. Asegúrese de que todos los archivos requeridos estén presentes.")
