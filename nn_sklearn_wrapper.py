@@ -3,6 +3,8 @@ Sklearn-compatible Neural Network Wrapper for NYC Taxi Trip Duration Prediction
 Wraps the winning Medium architecture (AdamW, ReLU, lr=0.001) as an sklearn estimator
 """
 
+import sys
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -263,9 +265,9 @@ class NeuralNetworkRegressor(BaseEstimator, RegressorMixin):
         # Predict
         self.model_.eval()
         with torch.no_grad():
-            predictions = self.model_(X_tensor).squeeze().cpu().numpy()
+            outputs = self.model_(X_tensor).cpu().numpy()
         
-        return predictions
+        return outputs.reshape(-1)
     
     def score(self, X, y):
         """
@@ -304,3 +306,6 @@ class NeuralNetworkRegressor(BaseEstimator, RegressorMixin):
         for key, value in params.items():
             setattr(self, key, value)
         return self
+
+
+sys.modules.setdefault('deployment.nn_sklearn_wrapper', sys.modules[__name__])

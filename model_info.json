@@ -55,7 +55,7 @@
   "optimizer": "AdamW",
   "activation": "ReLU",
   "uses_pretrained_weights": true,
-  "pretrained_model_path": "best_model.pth",
+  "pretrained_model_path": "/home/zerotwo/mineria/nyc/deployment/best_model.pth",
   "pretrained_device": "cpu",
   "test_rmse": 24.44376571036442,
   "test_mae": 3.150705408224584,

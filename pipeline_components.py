@@ -1,6 +1,8 @@
 """Shared preprocessing components for the NYC taxi deployment."""
 from __future__ import annotations
 
+import sys
+
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import PowerTransformer, StandardScaler
@@ -52,3 +54,6 @@ class MixedScaler(BaseEstimator, TransformerMixin):
         X_scaled[self.std_scaler_cols] = self.std_scaler.transform(X[self.std_scaler_cols])
         X_scaled[self.power_transform_cols] = self.power_transformer.transform(X[self.power_transform_cols])
         return X_scaled
+
+
+sys.modules.setdefault('deployment.pipeline_components', sys.modules[__name__])

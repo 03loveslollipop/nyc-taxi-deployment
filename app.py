@@ -8,18 +8,45 @@ import pandas as pd
 import numpy as np
 import pickle
 import json
+import sys
+import importlib
+import types
 from pathlib import Path
 import plotly.graph_objects as go
 import plotly.express as px
 
+BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BASE_DIR.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.append(str(PROJECT_ROOT))
+
+def _ensure_local_package():
+    try:
+        importlib.import_module('deployment')
+    except ModuleNotFoundError:
+        spec = importlib.machinery.ModuleSpec('deployment', loader=None, is_package=True)
+        pkg = types.ModuleType('deployment')
+        pkg.__path__ = [str(BASE_DIR)]
+        pkg.__package__ = 'deployment'
+        pkg.__spec__ = spec
+        sys.modules.setdefault('deployment', pkg)
+
+_ensure_local_package()
+
+def _alias_module(alias_name, module_name):
+    if module_name in sys.modules:
+        sys.modules.setdefault(alias_name, sys.modules[module_name])
+
 try:
-    from deployment.nn_sklearn_wrapper import NeuralNetworkRegressor  # noqa: F401
-    from deployment.pipeline_components import DummyEncoder, MixedScaler  # noqa: F401
-except ModuleNotFoundError:
     from nn_sklearn_wrapper import NeuralNetworkRegressor  # noqa: F401
     from pipeline_components import DummyEncoder, MixedScaler  # noqa: F401
-
-BASE_DIR = Path(__file__).resolve().parent
+    sys.modules.setdefault('deployment.nn_sklearn_wrapper', sys.modules['nn_sklearn_wrapper'])
+    sys.modules.setdefault('deployment.pipeline_components', sys.modules['pipeline_components'])
+except ModuleNotFoundError:
+    from deployment.nn_sklearn_wrapper import NeuralNetworkRegressor  # noqa: F401
+    from deployment.pipeline_components import DummyEncoder, MixedScaler  # noqa: F401
+    _alias_module('nn_sklearn_wrapper', 'deployment.nn_sklearn_wrapper')
+    _alias_module('pipeline_components', 'deployment.pipeline_components')
 
 # Configuración de página
 st.set_page_config(
@@ -150,7 +177,7 @@ if model_loaded:
         col1, col2 = st.columns(2)
         
         with col1:
-            st.subheader("Ubicación y Hora")
+            st.subheader("Ubicación del Viaje")
             
             pickup_borough = st.selectbox(
                 "Distrito de Recogida",
@@ -164,11 +191,6 @@ if model_loaded:
                 help="Distrito donde termina el viaje"
             )
             
-            pickup_hour = st.slider("Hora de Recogida (0-23)", 0, 23, 12)
-            pickup_day = st.slider("Día del Mes (1-31)", 1, 31, 15)
-            pickup_weekday = st.slider("Día de la Semana (0=Lunes, 6=Domingo)", 0, 6, 2)
-            pickup_month = st.slider("Mes (1-12)", 1, 12, 6)
-        
         with col2:
             st.subheader("Detalles del Viaje")
             
@@ -255,11 +277,7 @@ if model_loaded:
                 'extra': [extra],
                 'mta_tax': [mta_tax],
                 'tip_amount': [tip_amount],
-                'tolls_amount': [tolls_amount],
-                'pickup_hour': [pickup_hour],
-                'pickup_day': [pickup_day],
-                'pickup_weekday': [pickup_weekday],
-                'pickup_month': [pickup_month]
+                'tolls_amount': [tolls_amount]
             })
             
             # Hacer predicción
@@ -301,7 +319,6 @@ if model_loaded:
         Suba un archivo CSV con las siguientes columnas:
         - pickup_borough, dropoff_borough, payment_type
         - passenger_count, trip_distance, fare_amount, extra, mta_tax, tip_amount, tolls_amount
-        - pickup_hour, pickup_day, pickup_weekday, pickup_month
         """)
         
         uploaded_file = st.file_uploader("Elija un archivo CSV", type=['csv'])
